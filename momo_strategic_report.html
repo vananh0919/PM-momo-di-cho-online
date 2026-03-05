@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đi Chợ Online — Autopsy & Rebirth</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --m: #D82D8B;
+  --m2: #FFD6E7;
+  --m3: #FFF3FA;
+  --black: #1A1A1A;
+  --gray1: #303233;
+  --gray2: #727272;
+  --gray3: #B9B9B9;
+  --bg: #F9F9F9;
+  --white: #FFFFFF;
+  --border: #EBEBEB;
+  --red: #D32F2F;
+  --orange: #E65100;
+  --green: #2E7D32;
+  --blue: #1565C0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--white);color:var(--gray1);font-size:14px;line-height:1.65}
+
+/* ─── PROGRESS ─── */
+#pgbar{position:fixed;top:0;left:0;height:2px;background:var(--m);z-index:999;transition:width .08s linear}
+
+/* ─── NAV ─── */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 64px;height:52px;display:flex;align-items:center;gap:0}
+.nav-brand{font-size:13px;font-weight:800;color:var(--m);margin-right:28px;letter-spacing:-.3px;white-space:nowrap}
+.nav-pill{font-size:11.5px;color:var(--gray2);padding:5px 12px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.nav-pill:hover,.nav-pill.on{color:var(--m);background:var(--m3)}
+.nav-spacer{flex:1}
+.nav-tag{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray3);text-transform:uppercase}
+
+/* ─── HERO ─── */
+.hero{padding:88px 64px 80px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.hero-bg{position:absolute;right:-64px;top:-64px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,#FFD6E7 0%,transparent 70%);opacity:.5;pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--m)}
+.hero-eyebrow span{width:20px;height:1px;background:var(--m);display:block}
+.hero h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.05;max-width:780px}
+.hero h1 .dim{color:var(--gray3);font-weight:300}
+.hero h1 .accent{color:var(--m)}
+.hero-sub{margin-top:20px;font-size:16px;color:var(--gray2);max-width:620px;line-height:1.7;font-weight:400}
+.hero-meta{margin-top:48px;display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:740px}
+.hm-item{flex:1;padding:20px 24px;border-right:1px solid var(--border)}
+.hm-item:last-child{border-right:none}
+.hm-val{font-size:28px;font-weight:900;letter-spacing:-1px;color:var(--black)}
+.hm-val.bad{color:var(--red)}
+.hm-val.ok{color:var(--green)}
+.hm-lbl{font-size:11px;color:var(--gray3);margin-top:3px;font-weight:500}
+
+/* ─── SECTION ─── */
+section{padding:72px 64px;border-bottom:1px solid var(--border)}
+section:last-child{border-bottom:none}
+.sec-header{display:grid;grid-template-columns:200px 1fr;gap:40px;align-items:start;margin-bottom:56px}
+.sec-num{font-size:11px;font-weight:700;color:var(--m);letter-spacing:2px;text-transform:uppercase;padding-top:8px}
+.sec-title{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1.1}
+.sec-desc{margin-top:10px;font-size:14px;color:var(--gray2);line-height:1.7;max-width:600px}
+
+/* ─── GRID ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+/* ─── CARD ─── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card.filled{background:var(--bg)}
+.card.accent{border-color:var(--m2);background:var(--m3)}
+.card.danger{border-color:#FFCDD2;background:#FFF8F8}
+.card.warn{border-color:#FFE0B2;background:#FFFAF4}
+.card.success{border-color:#C8E6C9;background:#F6FFF6}
+.card.dark{background:var(--black);border-color:var(--black);color:var(--white)}
+
+/* ─── KPI CARD ─── */
+.kpi{border:1px solid var(--border);border-radius:12px;padding:24px 22px;position:relative;overflow:hidden}
+.kpi-val{font-size:40px;font-weight:900;letter-spacing:-2px;line-height:1}
+.kpi-val.m{color:var(--m)}
+.kpi-val.r{color:var(--red)}
+.kpi-val.o{color:var(--orange)}
+.kpi-val.g{color:var(--green)}
+.kpi-lbl{font-size:12px;color:var(--gray2);margin-top:8px;font-weight:500;line-height:1.4}
+.kpi-note{font-size:11px;color:var(--gray3);margin-top:4px;font-style:italic}
+.kpi-badge{position:absolute;top:14px;right:14px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.kpi-badge.r{background:#FFEBEE;color:var(--red)}
+.kpi-badge.m{background:var(--m2);color:var(--m)}
+.kpi-badge.o{background:#FFF3E0;color:var(--orange)}
+.kpi-badge.g{background:#E8F5E9;color:var(--green)}
+
+/* ─── CHART WRAPPER ─── */
+.cw{border:1px solid var(--border);border-radius:12px;padding:26px;background:var(--white)}
+.cw-title{font-size:13px;font-weight:700;color:var(--black);margin-bottom:2px}
+.cw-sub{font-size:11.5px;color:var(--gray3);margin-bottom:20px}
+
+/* ─── INSIGHT / SOWHAT ─── */
+.insight{border-left:2.5px solid var(--m);padding:14px 18px;background:var(--m3);border-radius:0 8px 8px 0;margin-top:20px}
+.insight-lbl{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--m);margin-bottom:6px}
+.insight p{font-size:13.5px;line-height:1.7;color:var(--gray1)}
+.insight p+p{margin-top:8px}
+.insight strong{color:var(--m);font-weight:700}
+.insight .neutral{color:var(--gray1)}
+
+.sowhat{background:var(--black);border-radius:10px;padding:18px 22px;margin-top:12px;display:flex;gap:14px;align-items:flex-start}
+.sw-arrow{color:var(--m);font-size:18px;font-weight:700;margin-top:1px;flex-shrink:0}
+.sw-body .sw-lbl{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--m2);margin-bottom:6px}
+.sw-body p{font-size:13.5px;color:#D0D0D0;line-height:1.7}
+.sw-body strong{color:var(--white)}
+
+/* ─── TABLE ─── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 14px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);border-bottom:1.5px solid var(--border);background:var(--bg)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--gray1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.bar-inline{display:inline-flex;align-items:center;gap:8px}
+.br{height:7px;border-radius:3px;display:inline-block}
+
+/* ─── FINDING ROW ─── */
+.finding{display:grid;grid-template-columns:52px 1fr;gap:24px;padding:28px 0;border-bottom:1px solid var(--border)}
+.finding:last-child{border-bottom:none}
+.finding-n{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0}
+.fn-critical{background:#FFEBEE;color:var(--red)}
+.fn-high{background:#FFF3E0;color:var(--orange)}
+.fn-medium{background:#FFF8E1;color:#F9A825}
+.f-badge{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;margin-bottom:8px}
+.fb-c{background:#FFEBEE;color:var(--red)}
+.fb-h{background:#FFF3E0;color:var(--orange)}
+.fb-m{background:#FFF8E1;color:#F9A825}
+.finding h3{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px}
+.finding p{font-size:13.5px;color:var(--gray2);line-height:1.7}
+
+/* ─── DIVIDER ─── */
+.div-line{height:1px;background:var(--border);margin:36px 0}
+
+/* ─── BIG QUOTE ─── */
+.big-quote{font-size:22px;font-weight:700;color:var(--black);line-height:1.4;letter-spacing:-.5px;border-left:4px solid var(--m);padding-left:24px;margin:32px 0}
+.big-quote .by{display:block;font-size:12px;font-weight:500;color:var(--gray3);margin-top:10px;letter-spacing:0;font-style:italic}
+
+/* ─── TIMELINE ─── */
+.timeline{display:flex;align-items:stretch;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.tl-step{flex:1;padding:20px 18px;border-right:1px solid var(--border);position:relative}
+.tl-step:last-child{border-right:none}
+.tl-step.bad{background:#FFF8F8}
+.tl-step.ok{background:#F6FFF6}
+.tl-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);margin-bottom:8px}
+.tl-time{font-size:36px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+.tl-step.bad .tl-time{color:var(--red)}
+.tl-step.ok .tl-time{color:var(--green)}
+.tl-unit{font-size:12px;color:var(--gray3);margin-top:2px}
+.tl-desc{font-size:12px;color:var(--gray2);margin-top:8px;line-height:1.5}
+.tl-arrow{display:flex;align-items:center;color:var(--gray3);font-size:20px;padding:0 4px;flex-shrink:0;align-self:center}
+
+/* ─── PROPOSAL SECTION ─── */
+.proposal-hero{background:var(--black);color:var(--white);border-radius:16px;padding:48px;margin-bottom:32px;position:relative;overflow:hidden}
+.proposal-hero::before{content:'';position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(216,45,139,.25) 0%,transparent 70%)}
+.ph-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--m2);margin-bottom:16px}
+.ph-title{font-size:36px;font-weight:900;letter-spacing:-1.2px;line-height:1.1;max-width:580px}
+.ph-title .acc{color:var(--m)}
+.ph-sub{margin-top:14px;font-size:14px;color:#999;max-width:520px;line-height:1.7}
+
+/* ─── PILLAR ─── */
+.pillar{border:1px solid var(--border);border-radius:12px;padding:28px;position:relative;overflow:hidden}
+.pillar-num{font-size:64px;font-weight:900;color:var(--border);position:absolute;right:20px;bottom:10px;letter-spacing:-4px;line-height:1;pointer-events:none;user-select:none}
+.pillar-icon{font-size:28px;margin-bottom:14px}
+.pillar h3{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px}
+.pillar p{font-size:13px;color:var(--gray2);line-height:1.65}
+.pillar .tag{display:inline-block;margin-top:14px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--m);background:var(--m3);padding:4px 10px;border-radius:100px}
+
+/* ─── COMPARISON ─── */
+.compare-row{display:grid;grid-template-columns:180px 1fr 1fr;gap:0;border-bottom:1px solid var(--border)}
+.compare-row:last-child{border-bottom:none}
+.cr-label{padding:14px 16px;font-size:12px;font-weight:600;color:var(--gray2);background:var(--bg);border-right:1px solid var(--border)}
+.cr-old{padding:14px 16px;font-size:12.5px;color:var(--gray3);text-decoration:line-through;border-right:1px solid var(--border)}
+.cr-new{padding:14px 16px;font-size:12.5px;color:var(--gray1);font-weight:600}
+.cr-new strong{color:var(--m)}
+
+/* ─── FOOTER ─── */
+footer{padding:36px 64px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)}
+.ft-brand{font-size:13px;font-weight:800;color:var(--m)}
+.ft-note{font-size:11.5px;color:var(--gray3)}
+</style>
+</head>
+<body>
+
+<div id="pgbar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">MoMo · Đi Chợ Online</div>
+  <a href="#data" class="nav-pill">01 Data</a>
+  <a href="#retention" class="nav-pill">02 Retention</a>
+  <a href="#behavior" class="nav-pill">03 Behavior</a>
+  <a href="#product" class="nav-pill">04 Product</a>
+  <a href="#delivery" class="nav-pill">05 Giao hàng</a>
+  <a href="#root" class="nav-pill">06 Root Cause</a>
+  <a href="#proposal" class="nav-pill">07 Đề xuất</a>
+  <div class="nav-spacer"></div>
+  <div class="nav-tag">Q2 2020 → 2026</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow"><span></span>Post-mortem & Strategic Reframe</div>
+  <h1>Tại sao <span class="accent">Đi Chợ Online</span><br><span class="dim">thất bại —</span> và MoMo<br>nên làm gì <span class="accent">tiếp theo.</span></h1>
+  <p class="hero-sub">Phân tích 756 đơn hàng, 462 users, và 77 ngày dữ liệu Q2/2020 để tìm ra nguyên nhân gốc rễ. Sau đó, đặt lại bài toán trong bối cảnh MoMo 2026 — "trợ thủ tài chính" — để đề xuất hướng đi có tính khả thi cao nhất.</p>
+  <div class="hero-meta">
+    <div class="hm-item">
+      <div class="hm-val">756</div>
+      <div class="hm-lbl">Tổng đơn hàng (Apr–Jun 2020)</div>
+    </div>
+    <div class="hm-item">
+      <div class="hm-val">462</div>
+      <div class="hm-lbl">Unique users</div>
+    </div>
+    <div class="hm-item">
+      <div class="hm-val bad">−86%</div>
+      <div class="hm-lbl">Lượng đơn Apr → Jun</div>
+    </div>
+    <div class="hm-item">
+      <div class="hm-val bad">290'</div>
+      <div class="hm-lbl">Trung bình thời gian giao</div>
+    </div>
+    <div class="hm-item">
+      <div class="hm-val ok">2026</div>
+      <div class="hm-lbl">Năm tái định vị MoMo</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 1 · DATA OVERVIEW
+═══════════════════════════════════════════════ -->
+<section id="data">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">01 · Data Overview</div>
+    </div>
+    <div>
+      <div class="sec-title">Bức tranh tổng thể<br>từ dataset Q2/2020</div>
+      <div class="sec-desc">Trước khi phân tích sâu từng chiều, cần nhìn toàn cảnh. Số liệu đầu vào nhỏ nhưng đủ để rút ra những pattern quan trọng về hành vi người dùng và vận hành sản phẩm.</div>
+    </div>
+  </div>
+
+  <div class="g4" style="margin-bottom:20px">
+    <div class="kpi">
+      <div class="kpi-badge m">Apr Peak</div>
+      <div class="kpi-val m">21.7</div>
+      <div class="kpi-lbl">Đơn trung bình / ngày<br>trong tháng 4</div>
+      <div class="kpi-note">Đỉnh tuyệt đối: 59 đơn (24/4)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-badge o">May Drop</div>
+      <div class="kpi-val o">9.4</div>
+      <div class="kpi-lbl">Đơn trung bình / ngày<br>trong tháng 5</div>
+      <div class="kpi-note">−57% so với tháng 4</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-badge r">Jun Collapse</div>
+      <div class="kpi-val r">3.1</div>
+      <div class="kpi-lbl">Đơn trung bình / ngày<br>trong tháng 6</div>
+      <div class="kpi-note">−67% so với tháng 5</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-badge r">Giải thể</div>
+      <div class="kpi-val r">0</div>
+      <div class="kpi-lbl">Đơn hàng hiện tại<br>(sản phẩm đã dừng)</div>
+      <div class="kpi-note">Không tồn tại đến 2026</div>
+    </div>
+  </div>
+
+  <div class="cw">
+    <div class="cw-title">Đường cong sụp đổ — Số đơn hàng theo ngày (Apr 15 – Jun 30, 2020)</div>
+    <div class="cw-sub">Vùng xám = giai đoạn giãn cách xã hội. Đơn hàng không tự nhiên giảm — chúng rơi tự do khi lý do khủng hoảng biến mất.</div>
+    <canvas id="dailyChart" height="80"></canvas>
+  </div>
+
+  <div class="insight" style="margin-top:20px">
+    <div class="insight-lbl">🔍 Pattern</div>
+    <p>Ba giai đoạn rõ ràng: <strong>Bùng nổ</strong> (Apr 15–24, đỉnh 59 đơn), <strong>Rơi tự do</strong> (Apr 25 – May 31, −70%), <strong>Cơ bản bằng 0</strong> (Từ Jun, 1–5 đơn/ngày). Đây không phải trajectory của một sản phẩm đang phát triển — đây là vòng đời của một <strong>crisis response</strong>, không phải một product.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2 · RETENTION
+═══════════════════════════════════════════════ -->
+<section id="retention">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">02 · Retention Signal</div>
+    </div>
+    <div>
+      <div class="sec-title">Người dùng đến vì<br>COVID, không phải vì product</div>
+      <div class="sec-desc">Tỷ lệ đơn/user là chỉ số retention đơn giản nhất — và nó kể một câu chuyện rất rõ về mức độ gắn kết thực sự của người dùng.</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:20px">
+    <div class="cw">
+      <div class="cw-title">Avg đơn / ngày theo tháng</div>
+      <div class="cw-sub">Mức giảm theo từng tháng</div>
+      <canvas id="monthlyAvg" height="200"></canvas>
+    </div>
+    <div class="cw">
+      <div class="cw-title">Tỷ lệ đơn / user (chỉ số loyalty)</div>
+      <div class="cw-sub">Càng gần 1.0 = user chỉ mua 1 lần rồi bỏ</div>
+      <canvas id="loyaltyChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Cohort analysis simplified -->
+  <div class="cw">
+    <div class="cw-title">Phân tích giữ chân người dùng theo tháng</div>
+    <div class="cw-sub">Tổng users đặt đơn · Tổng đơn · Tỷ lệ đơn/user · Đánh giá retention</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tháng</th>
+          <th>Tổng đơn</th>
+          <th>Unique users</th>
+          <th>Đơn / user</th>
+          <th>Avg/ngày</th>
+          <th>Thay đổi</th>
+          <th>Đánh giá</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Tháng 4</strong> <span style="font-size:10px;color:var(--gray3)">(17 ngày)</span></td>
+          <td><strong style="color:var(--m)">370</strong></td>
+          <td>276</td>
+          <td><strong style="color:var(--m)">1.34×</strong></td>
+          <td>21.7</td>
+          <td>—</td>
+          <td><span style="background:var(--m3);color:var(--m);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Baseline</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tháng 5</strong> <span style="font-size:10px;color:var(--gray3)">(31 ngày)</span></td>
+          <td><strong style="color:var(--orange)">292</strong></td>
+          <td>245</td>
+          <td style="color:var(--orange)"><strong>1.19×</strong></td>
+          <td>9.4</td>
+          <td style="color:var(--red)">−57%</td>
+          <td><span style="background:#FFF3E0;color:var(--orange);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Đáng lo</span></td>
+        </tr>
+        <tr style="background:#FFF8F8">
+          <td><strong>Tháng 6</strong> <span style="font-size:10px;color:var(--gray3)">(30 ngày)</span></td>
+          <td><strong style="color:var(--red)">94</strong></td>
+          <td>92</td>
+          <td style="color:var(--red)"><strong>1.02×</strong></td>
+          <td>3.1</td>
+          <td style="color:var(--red);font-weight:700">−67%</td>
+          <td><span style="background:#FFEBEE;color:var(--red);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Sụp đổ</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <div class="insight-lbl">🔍 Phân tích</div>
+    <p>Tỷ lệ đơn/user tháng 6 là <strong>1.02×</strong> — gần như mỗi user chỉ đặt đúng 1 đơn rồi không quay lại. So với tháng 4 là 1.34×, sự sụt giảm này cho thấy <strong>không có bất kỳ cơ chế nào giữ người dùng</strong>: không loyalty program, không subscription, không habit loop. Sản phẩm chỉ hoạt động khi có <em>áp lực bên ngoài</em> — chính là lệnh giãn cách xã hội.</p>
+  </div>
+  <div class="sowhat">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Root Cause Hypothesis</div>
+      <p>Vấn đề không nằm ở execution, mà nằm ở <strong>product-market fit</strong>. Đi Chợ Online giải quyết bài toán "tôi không thể ra ngoài" — một nhu cầu nhất thời. Khi nhu cầu đó biến mất, không có <strong>value proposition đủ mạnh</strong> để user tiếp tục dùng thay cho đi chợ trực tiếp.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 3 · BEHAVIOR
+═══════════════════════════════════════════════ -->
+<section id="behavior">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">03 · Ordering Behavior</div>
+    </div>
+    <div>
+      <div class="sec-title">Thứ Sáu & 16h chiều:<br>hai cửa sổ vàng bị bỏ lỡ</div>
+      <div class="sec-desc">Timing data tiết lộ context của người dùng khi họ mua — và từ đó ta hiểu được mental model của họ.</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:20px">
+    <div class="cw">
+      <div class="cw-title">Đơn hàng theo ngày trong tuần</div>
+      <div class="cw-sub">Thứ Sáu chiếm 19.8% — gần gấp đôi Thứ Hai</div>
+      <canvas id="weekChart" height="200"></canvas>
+    </div>
+    <div class="cw">
+      <div class="cw-title">Đơn hàng theo giờ trong ngày</div>
+      <div class="cw-sub">2 đỉnh: 11h sáng (59 đơn) và 16h chiều (76 đơn)</div>
+      <canvas id="hourChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Time segmentation -->
+  <div class="g4" style="margin-bottom:20px">
+    <div class="kpi">
+      <div class="kpi-badge" style="background:var(--bg);color:var(--gray3)">Khuya</div>
+      <div class="kpi-val" style="color:var(--gray3)">3%</div>
+      <div class="kpi-lbl">0h–5h · 23 đơn</div>
+      <div class="kpi-note">Không đáng kể</div>
+    </div>
+    <div class="kpi" style="border-color:var(--m2);background:var(--m3)">
+      <div class="kpi-badge m">Peak 1</div>
+      <div class="kpi-val m">28%</div>
+      <div class="kpi-lbl">6h–11h · 210 đơn<br>Đỉnh: <strong>11h = 59 đơn</strong></div>
+      <div class="kpi-note">Chuẩn bị bữa trưa / vừa xong việc</div>
+    </div>
+    <div class="kpi" style="border-color:var(--m2);background:var(--m3)">
+      <div class="kpi-badge m">Peak 2</div>
+      <div class="kpi-val m">38%</div>
+      <div class="kpi-lbl">12h–17h · 287 đơn<br>Đỉnh: <strong>16h = 76 đơn</strong></div>
+      <div class="kpi-note">Trước tan làm, cần nhận tối</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-badge" style="background:var(--bg);color:var(--gray3)">Tối</div>
+      <div class="kpi-val" style="color:var(--gray2)">27%</div>
+      <div class="kpi-lbl">18h–23h · 207 đơn</div>
+      <div class="kpi-note">Lên kế hoạch cho hôm sau</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-lbl">🔍 Phân tích</div>
+    <p>Pattern thứ Sáu (19.8% đơn) + 2 đỉnh giờ (11h & 16h) cho thấy người dùng đặt hàng <strong>theo context cụ thể</strong>: chuẩn bị bữa ăn hoặc chuẩn bị kết thúc ngày làm việc. Đây là <strong>planning behavior</strong>, không phải impulse buying. User đang nghĩ "tối nay ăn gì" hoặc "cuối tuần này cần mua gì".</p>
+    <p>Thứ Tư–Thứ Năm cũng cao (122–116 đơn) — người dùng bắt đầu plan cho cuối tuần từ <strong>giữa tuần</strong>.</p>
+  </div>
+  <div class="sowhat">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Implication</div>
+      <p>Nếu có notification system: <strong>Thứ Tư 10:30 sáng</strong> ("Chuẩn bị cho cuối tuần") và <strong>Thứ Sáu 15:30 chiều</strong> ("Đặt trước khi về") sẽ match chính xác intent. Nhưng insight này cũng nói lên thứ lớn hơn: user <strong>đang lên kế hoạch chi tiêu</strong> — đây là behavior của "financial planning", không chỉ là grocery.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 4 · PRODUCT & SEARCH
+═══════════════════════════════════════════════ -->
+<section id="product">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">04 · Product & Search</div>
+    </div>
+    <div>
+      <div class="sec-title">Khẩu trang #1,<br>Bia Heineken top revenue</div>
+      <div class="sec-desc">Search intent và purchase data lộ ra sự mâu thuẫn về định vị — và một opportunity bị bỏ lỡ.</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:20px">
+    <div class="cw">
+      <div class="cw-title">Top từ khoá tìm kiếm (lượt truy cập)</div>
+      <div class="cw-sub">Phân tích 10 từ khoá phổ biến nhất</div>
+      <canvas id="keywordChart" height="260"></canvas>
+    </div>
+    <div class="cw">
+      <div class="cw-title">Lượt tìm theo danh mục sản phẩm</div>
+      <div class="cw-sub">Tổng hợp từ tháng 6/2020</div>
+      <canvas id="catChart" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="cw" style="margin-bottom:20px">
+    <div class="cw-title">Top sản phẩm theo doanh thu vs. độ phổ biến</div>
+    <div class="cw-sub">Phát hiện quan trọng: Revenue ≠ Popularity — khoảng cách này nói lên điều gì?</div>
+    <table>
+      <thead><tr><th>Sản phẩm</th><th>Users</th><th>Số đơn</th><th>Doanh thu (VND)</th><th>Giảm giá</th><th>Revenue bar</th><th>Nhận xét</th></tr></thead>
+      <tbody>
+        <tr style="background:#FFF8F8">
+          <td><strong>Bia Heineken Silver Thùng 24×</strong></td><td>9</td><td>13</td>
+          <td><strong style="color:var(--red)">68,801,000</strong></td><td>998,500</td>
+          <td><div class="bar-inline"><div class="br" style="width:200px;background:#E53935"></div></div></td>
+          <td><span style="font-size:10px;color:var(--red);font-weight:700">High value, niche</span></td>
+        </tr>
+        <tr style="background:#FFF8F8">
+          <td><strong>Bia Heineken Thùng 24×330ml</strong></td><td>32</td><td>68</td>
+          <td><strong style="color:var(--orange)">57,556,500</strong></td><td style="color:var(--red)">6,007,500</td>
+          <td><div class="bar-inline"><div class="br" style="width:168px;background:#E65100"></div></div></td>
+          <td><span style="font-size:10px;color:var(--orange);font-weight:700">Discount nặng</span></td>
+        </tr>
+        <tr style="background:#FFF8F8">
+          <td><strong>Bia Tiger Crystal Thùng 24×</strong></td><td>9</td><td>13</td>
+          <td><strong>47,311,000</strong></td><td>572,000</td>
+          <td><div class="bar-inline"><div class="br" style="width:138px;background:var(--m)"></div></div></td>
+          <td><span style="font-size:10px;color:var(--gray2)">Consistent buyer</span></td>
+        </tr>
+        <tr>
+          <td><strong>Nước Teppy Cam Tép 1L</strong></td><td style="color:var(--m)"><strong>76</strong></td><td><strong>110</strong></td>
+          <td>4,630,500</td><td>731,250</td>
+          <td><div class="bar-inline"><div class="br" style="width:14px;background:var(--gray3)"></div></div></td>
+          <td><span style="font-size:10px;color:var(--m);font-weight:700">Most popular item</span></td>
+        </tr>
+        <tr>
+          <td><strong>Trứng Gà CoopSelect Vỉ 10</strong></td><td>55</td><td>61</td>
+          <td>1,989,000</td><td>0</td>
+          <td><div class="bar-inline"><div class="br" style="width:6px;background:var(--gray3)"></div></div></td>
+          <td><span style="font-size:10px;color:var(--green)">Essential staple</span></td>
+        </tr>
+        <tr>
+          <td><strong>Aquafina 5L</strong></td><td>42</td><td>54</td>
+          <td>3,086,000</td><td>318,000</td>
+          <td><div class="bar-inline"><div class="br" style="width:9px;background:var(--gray3)"></div></div></td>
+          <td><span style="font-size:10px;color:var(--green)">Essential staple</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <div class="insight-lbl">🔍 3 Insights từ Product Data</div>
+    <p><strong>1. Search #1 là "Khẩu trang"</strong> — 122/462 users (26%) search từ khoá này. Đây là COVID panic buying signal. Người dùng dùng Đi Chợ Online như một <strong>emergency marketplace</strong>, không phải grocery app.</p>
+    <p><strong>2. Revenue paradox:</strong> Top 3 revenue đều là bia thùng (68M + 57M + 47M VND). Nhưng bia thùng chỉ có 9–32 users. Sản phẩm phổ biến nhất (Nước Teppy, 76 users) lại có revenue cực thấp. Điều này cho thấy <strong>product mix bị skewed</strong>: sản phẩm cao giá không có breadth, sản phẩm phổ biến không có depth.</p>
+    <p><strong>3. Essential staples (trứng, gạo, nước) có zero discount</strong> nhưng vẫn được mua nhiều — đây là nhóm có <strong>inelastic demand</strong>, tức là user sẵn sàng trả đúng giá. Bia Heineken phải discount 6 triệu mới bán được — chi phí acquisition per unit rất cao.</p>
+  </div>
+  <div class="sowhat">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Implication</div>
+      <p>Discount strategy cho bia thùng có ROI kém. Nếu tiếp tục product này, cần <strong>chuyển nguồn lực sang essential staples</strong> (trứng, gạo, rau, nước) — nhu cầu đều đặn, không cần discount, phù hợp với daily habit loop hơn. Đây cũng là category align với positioning <strong>"quản lý chi tiêu hàng ngày"</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 5 · DELIVERY
+═══════════════════════════════════════════════ -->
+<section id="delivery">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">05 · Delivery Reality</div>
+    </div>
+    <div>
+      <div class="sec-title">~5 giờ để nhận hàng:<br>không thể cạnh tranh</div>
+      <div class="sec-desc">Delivery time là yếu tố trust cốt lõi trong grocery. 255 ghi chú của user tiết lộ họ không tin tưởng hệ thống giao hàng.</div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline" style="margin-bottom:20px">
+    <div class="tl-step bad">
+      <div class="tl-label">Bước 1</div>
+      <div class="tl-time">100</div>
+      <div class="tl-unit">phút</div>
+      <div class="tl-desc">Merchant xác nhận đơn hàng — thời gian "chết" hoàn toàn, không có activity nào</div>
+    </div>
+    <div class="tl-arrow">→</div>
+    <div class="tl-step bad">
+      <div class="tl-label">Bước 2</div>
+      <div class="tl-time">174</div>
+      <div class="tl-unit">phút</div>
+      <div class="tl-desc">Merchant chuẩn bị & giao hàng — nghi vấn gộp nhiều đơn mới đi một lượt</div>
+    </div>
+    <div class="tl-arrow">→</div>
+    <div class="tl-step ok">
+      <div class="tl-label">Bước 3</div>
+      <div class="tl-time">15</div>
+      <div class="tl-unit">phút</div>
+      <div class="tl-desc">User nhận hàng từ tay shipper — last-mile thực sự khá nhanh</div>
+    </div>
+    <div class="tl-arrow">→</div>
+    <div class="tl-step bad" style="border-right:none">
+      <div class="tl-label">Hủy đơn</div>
+      <div class="tl-time">356</div>
+      <div class="tl-unit">phút</div>
+      <div class="tl-desc">Xử lý yêu cầu hủy — gần 6 tiếng để được xác nhận cancel</div>
+    </div>
+  </div>
+
+  <!-- Comparison bar -->
+  <div class="cw" style="margin-bottom:20px">
+    <div class="cw-title">So sánh tổng thời gian giao hàng với benchmark thị trường (phút)</div>
+    <div class="cw-sub">Khoảng cách là 6.4× — không thể đuổi kịp nếu không thay đổi fundamental model</div>
+    <canvas id="deliveryCompare" height="80"></canvas>
+  </div>
+
+  <!-- Notes analysis -->
+  <div class="cw">
+    <div class="cw-title">Phân tích 255 ghi chú của user — điều user thực sự lo lắng</div>
+    <div class="cw-sub">Ghi chú là nguồn qualitative data quý giá nhất trong dataset — tiếng nói thật, không được hỏi trước</div>
+    <div class="g3" style="gap:14px;margin-bottom:20px">
+      <div class="card danger">
+        <div style="font-size:32px;font-weight:900;color:var(--red)">~40%</div>
+        <div style="font-size:13px;font-weight:700;margin:8px 0 4px">Yêu cầu gọi điện trước</div>
+        <div style="font-size:12px;color:var(--gray2);line-height:1.5">"Gọi trước khi giao 0972xxxxx" — user không tin shipper sẽ tự tìm được địa chỉ</div>
+      </div>
+      <div class="card warn">
+        <div style="font-size:32px;font-weight:900;color:var(--orange)">~30%</div>
+        <div style="font-size:13px;font-weight:700;margin:8px 0 4px">Giải thích địa chỉ</div>
+        <div style="font-size:12px;color:var(--gray2);line-height:1.5">"Block C chung cư Bronze Lotus" — hệ thống địa chỉ không đủ chi tiết cho chung cư</div>
+      </div>
+      <div class="card">
+        <div style="font-size:32px;font-weight:900;color:var(--gray2)">~30%</div>
+        <div style="font-size:13px;font-weight:700;margin:8px 0 4px">Yêu cầu đặc biệt</div>
+        <div style="font-size:12px;color:var(--gray2);line-height:1.5">Giao giờ cụ thể, đóng gói riêng, giao hàng thùng — nhu cầu cao nhưng không có tính năng hỗ trợ</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:8px;padding:16px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray3);margin-bottom:12px">Sample ghi chú thực từ dataset</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="padding:9px 14px;background:var(--white);border-radius:6px;border:1px solid var(--border);font-size:12.5px;color:var(--gray2);font-style:italic">"Nhà chung cư, tới gọi sẽ có người xuống lấy 🥰"</div>
+        <div style="padding:9px 14px;background:var(--white);border-radius:6px;border:1px solid var(--border);font-size:12.5px;color:var(--gray2);font-style:italic">"Nếu gọi điện 09162xxxxx không được thì gọi số 0913xxxxxx"</div>
+        <div style="padding:9px 14px;background:var(--white);border-radius:6px;border:1px solid var(--border);font-size:12.5px;color:var(--gray2);font-style:italic">"Vui lòng giao trước 12h trưa mai (25/4) nhé. Em cảm ơn"</div>
+        <div style="padding:9px 14px;background:var(--white);border-radius:6px;border:1px solid var(--border);font-size:12.5px;color:var(--gray2);font-style:italic">"Cửa hàng giao hàng thùng giúp tôi nhé. Ko có hàng thùng tôi sẽ ko nhận hàng."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-lbl">🔍 Phân tích</div>
+    <p><strong>Bottleneck thực sự là Merchant Confirmation (100 phút)</strong> — không phải shipper. Merchant chưa có SLA, không có incentive để confirm nhanh. 174 phút delivery cũng bất thường — nghi ngờ merchant gộp đơn, không giao ngay. Tổng: 289 phút vs. benchmark Grab Mart ~45 phút = <strong>chậm hơn 6.4×</strong>.</p>
+    <p><strong>40% user phải để lại ghi chú yêu cầu gọi điện</strong> — đây là systemic distrust, không phải cá biệt. UX address input cũng kém: nhiều user phải tự giải thích "Block C chung cư", "gần tiệm mắt kính A".</p>
+  </div>
+  <div class="sowhat">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Verdict</div>
+      <p>Với model hiện tại (phụ thuộc merchant bên thứ 3 không có SLA), MoMo <strong>không thể cạnh tranh về delivery speed</strong>. Không phải vấn đề kỹ thuật — mà là vấn đề <strong>supply chain model</strong>. Fix được phải thay cách vận hành, không chỉ thêm feature.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 6 · ROOT CAUSE
+═══════════════════════════════════════════════ -->
+<section id="root" style="background:var(--bg)">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">06 · Root Cause</div>
+    </div>
+    <div>
+      <div class="sec-title">Tại sao thực sự<br>Đi Chợ Online thất bại?</div>
+      <div class="sec-desc">Từ 5 chiều dữ liệu trên, có thể rút ra 3 nguyên nhân gốc rễ — và quan trọng hơn, phân biệt đâu là symptom, đâu là cause.</div>
+    </div>
+  </div>
+
+  <div class="big-quote">
+    "Đi Chợ Online không thất bại vì thực thi kém.<br>Nó thất bại vì được xây dựng để giải quyết<br>một vấn đề tạm thời bằng một sản phẩm vĩnh viễn."
+    <span class="by">— Kết luận từ data phân tích Q2/2020</span>
+  </div>
+
+  <div class="finding">
+    <div class="finding-n fn-critical">01</div>
+    <div>
+      <div class="f-badge fb-c">Root Cause #1</div>
+      <h3>Sai bài toán: "Tôi không thể ra ngoài" ≠ "Tôi muốn đặt đồ ăn online"</h3>
+      <p>Data cho thấy user đến vì COVID lock-in. Khi hết giãn cách, họ quay về hành vi cũ (đi chợ trực tiếp) ngay lập tức. Điều này chứng minh product đã giải đúng bài toán — nhưng đó là bài toán sai. <strong>Bài toán đúng</strong> không phải "tôi không ra được" mà phải là "tôi chọn không ra vì online tốt hơn".</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-n fn-critical">02</div>
+    <div>
+      <div class="f-badge fb-c">Root Cause #2</div>
+      <h3>MoMo không có competitive moat trong grocery logistics</h3>
+      <p>Grab có GrabMart với logistics đã build sẵn. Baemin có density shipper cao. Big C có warehouse và supply chain. MoMo có gì? <strong>Chỉ có payment</strong>. Nhưng payment không phải differentiator trong grocery (ai cũng có VNPAY, Momo, COD). Xây dựng logistics từ đầu để compete với Grab là cuộc chiến không cân sức về vốn và infrastructure.</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-n fn-high">03</div>
+    <div>
+      <div class="f-badge fb-h">Root Cause #3</div>
+      <h3>Grocery không align với core user behavior trên MoMo</h3>
+      <p>MoMo users mở app để <strong>chuyển tiền, thanh toán hóa đơn, nạp điện thoại</strong> — các tác vụ 1–2 phút, high frequency, low friction. Grocery là journey 10–20 phút, cần browse nhiều, có delivery wait time. Mental model không match. User phải "switch mode" từ payment app sang shopping app — đây là UX friction không thể giải quyết bằng design, chỉ giải quyết được bằng context.</p>
+    </div>
+  </div>
+
+  <div class="sowhat" style="margin-top:28px">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Nếu năm 2020 biết điều này</div>
+      <p>Thay vì build một grocery marketplace từ đầu, nên đặt câu hỏi: <strong>"MoMo có lợi thế độc đáo gì có thể ứng dụng vào grocery mà không ai khác có?"</strong> Câu trả lời: data về spending behavior, payment history, và khả năng tích hợp tài chính (cashback, BNPL, budget tracking). Đây là hướng đáng xây — nhưng năm 2020 chưa được khai thác.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 7 · PROPOSAL — 2026
+═══════════════════════════════════════════════ -->
+<section id="proposal">
+  <div class="sec-header">
+    <div>
+      <div class="sec-num">07 · Strategic Proposal</div>
+    </div>
+    <div>
+      <div class="sec-title">Đề xuất 2026:<br>Không làm lại cái cũ</div>
+      <div class="sec-desc">MoMo 2026 định vị là "trợ thủ tài chính". Đây là bối cảnh hoàn toàn khác. Bài toán cần đặt lại từ đầu — không phải "làm Đi Chợ Online phiên bản mới" mà là "grocery problem có thể giải quyết thế nào từ góc nhìn tài chính?"</div>
+    </div>
+  </div>
+
+  <!-- Context shift -->
+  <div class="proposal-hero">
+    <div class="ph-eyebrow">Context Shift · 2020 vs 2026</div>
+    <div class="ph-title">MoMo không còn là<br><span class="acc">ví điện tử.</span><br>MoMo là <span class="acc">trợ thủ tài chính.</span></div>
+    <div class="ph-sub">Sự thay đổi positioning này mở ra hoàn toàn khác về cách tiếp cận bài toán grocery — không phải logistics, mà là financial intelligence.</div>
+  </div>
+
+  <!-- Old vs New framing -->
+  <div class="cw" style="margin-bottom:24px">
+    <div class="cw-title">Reframe bài toán: Từ "Đi chợ online" → "Quản lý chi tiêu thực phẩm"</div>
+    <div class="cw-sub">Cùng một user need, nhưng góc tiếp cận khác nhau tạo ra moat khác nhau</div>
+    <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;background:var(--bg)">
+        <div style="padding:12px 16px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);border-right:1px solid var(--border)">Dimension</div>
+        <div style="padding:12px 16px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);border-right:1px solid var(--border)">❌ Đi Chợ Online (2020)</div>
+        <div style="padding:12px 16px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--m)">✅ Grocery Finance (2026)</div>
+      </div>
+      <div class="compare-row">
+        <div class="cr-label">Core Value</div>
+        <div class="cr-old">Mua hàng nhanh hơn đi chợ</div>
+        <div class="cr-new"><strong>Tiết kiệm tiền</strong> khi mua sắm hàng ngày</div>
+      </div>
+      <div class="compare-row">
+        <div class="cr-label">Moat</div>
+        <div class="cr-old">Logistics (không có lợi thế)</div>
+        <div class="cr-new"><strong>Spending data + AI</strong> (MoMo đã có)</div>
+      </div>
+      <div class="compare-row">
+        <div class="cr-label">Competitor</div>
+        <div class="cr-old">Grab Mart, Baemin (thua về logistics)</div>
+        <div class="cr-new"><strong>Không ai có</strong> financial-first grocery</div>
+      </div>
+      <div class="compare-row">
+        <div class="cr-label">Retention</div>
+        <div class="cr-old">Phụ thuộc ngoại cảnh (COVID)</div>
+        <div class="cr-new"><strong>Budget cycle</strong> = weekly/monthly habit</div>
+      </div>
+      <div class="compare-row">
+        <div class="cr-label">Build cost</div>
+        <div class="cr-old">Phải build logistics từ đầu</div>
+        <div class="cr-new"><strong>Partner với existing apps</strong>, MoMo làm financial layer</div>
+      </div>
+      <div class="compare-row" style="border-bottom:none">
+        <div class="cr-label">User job-to-be-done</div>
+        <div class="cr-old">"Tôi cần mua đồ ăn ngay"</div>
+        <div class="cr-new"><strong>"Tôi cần kiểm soát tiền chi cho ăn uống"</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 pillars -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:13px;font-weight:700;color:var(--black);margin-bottom:16px">3 Trụ cột của đề xuất</div>
+    <div class="g3">
+      <div class="pillar">
+        <div class="pillar-num">01</div>
+        <div class="pillar-icon">📊</div>
+        <h3>Grocery Spending Intelligence</h3>
+        <p>MoMo đã có transaction data của hàng triệu user. Build tính năng <strong>"Tháng này bạn chi bao nhiêu tiền cho thực phẩm"</strong> — automatic categorization, so sánh với tháng trước, với trung bình khu vực. Không cần logistics, chỉ cần data processing.</p>
+        <div class="tag">Leverage existing data</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">02</div>
+        <div class="pillar-icon">🛒</div>
+        <h3>Smart Shopping List với Budget Lock</h3>
+        <p>User tạo shopping list trên MoMo, set budget (ví dụ 500k/tuần cho thực phẩm). MoMo <strong>gợi ý cửa hàng / kênh mua tốt nhất</strong> dựa trên price data từ partner (Grab, Shopee, CoopMart). MoMo kiếm tiền qua affiliate, không phải logistics.</p>
+        <div class="tag">Asset-light model</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">03</div>
+        <div class="pillar-icon">💳</div>
+        <h3>Grocery Cashback & BNPL</h3>
+        <p>Tận dụng Ví Trả Sau và hệ sinh thái tài chính của MoMo để offer <strong>cashback khi mua sắm thực phẩm qua partner apps</strong>, hoặc BNPL cho giỏ hàng lớn (cuối tháng, Tết). Đây là differentiated value không app nào khác có.</p>
+        <div class="tag">Monetization ready</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why this works -->
+  <div class="cw">
+    <div class="cw-title">Tại sao đề xuất này khả thi hơn?</div>
+    <div class="cw-sub">Đối chiếu với 3 root cause đã phân tích từ data 2020</div>
+    <table>
+      <thead><tr><th>Root Cause (2020)</th><th>Đề xuất 2026 giải quyết thế nào</th><th>Confidence</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Sai bài toán</strong> — giải crisis tạm thời</td>
+          <td>Bài toán mới: <strong>quản lý chi tiêu thực phẩm</strong> = nhu cầu vĩnh viễn, không phụ thuộc khủng hoảng</td>
+          <td><span style="background:#E8F5E9;color:var(--green);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Không có moat</strong> trong logistics</td>
+          <td>Không cạnh tranh logistics nữa — <strong>MoMo làm financial layer</strong>, partner với Grab/Shopee cho logistics</td>
+          <td><span style="background:#E8F5E9;color:var(--green);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Misaligned mental model</strong> — grocery ≠ payment app</td>
+          <td>Grocery <strong>spending tracking</strong> = tài chính → hoàn toàn align với "trợ thủ tài chính"</td>
+          <td><span style="background:#E8F5E9;color:var(--green);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Cao</span></td>
+        </tr>
+        <tr>
+          <td><strong>Delivery 290 phút</strong> — không cạnh tranh được</td>
+          <td><strong>Không cần delivery</strong> — MoMo không ship hàng, chỉ cung cấp financial intelligence</td>
+          <td><span style="background:#E8F5E9;color:var(--green);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Giải quyết hoàn toàn</span></td>
+        </tr>
+        <tr>
+          <td><strong>Retention = 0</strong> sau COVID</td>
+          <td>Budget tracking = <strong>weekly habit</strong> gắn với chu kỳ thu chi tự nhiên của user</td>
+          <td><span style="background:var(--m3);color:var(--m);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700">Tiềm năng cao</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Data signals supporting proposal -->
+  <div class="insight" style="margin-top:20px">
+    <div class="insight-lbl">📊 Data từ 2020 ủng hộ hướng này</div>
+    <p><strong>Essential staples (trứng, gạo, nước, rau) có zero discount nhưng vẫn được mua đều đặn</strong> → user sẵn sàng trả giá thị trường cho necessities. Đây là behavior của người đang quản lý chi tiêu có kế hoạch, không phải deal hunter.</p>
+    <p><strong>Thứ Sáu + midweek planning pattern</strong> → user đang lên kế hoạch cho tuần, không phải mua impulse. "Lên kế hoạch chi tiêu" là behavior finance app, không phải marketplace app.</p>
+    <p><strong>38% user không có gender data</strong> → vấn đề onboarding cần fix. Nhưng nếu MoMo đã biết user <em>chi bao nhiêu tiền vào grocery</em> qua transaction history, thì gender field trở nên không quan trọng — ta có contextual data tốt hơn nhiều.</p>
+  </div>
+  <div class="sowhat">
+    <div class="sw-arrow">↳</div>
+    <div class="sw-body">
+      <div class="sw-lbl">Kết luận</div>
+      <p>Đi Chợ Online thất bại không có nghĩa là MoMo nên bỏ qua grocery. Nó có nghĩa là <strong>MoMo đã tiếp cận sai angle</strong>. Năm 2026, với positioning "trợ thủ tài chính" và hàng triệu users đã có, MoMo có thể re-enter grocery market với vai trò <strong>financial intelligence layer</strong> — không phải marketplace, không phải logistics. Đây là vị trí mà không đối thủ nào đang chiếm giữ.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="ft-brand">MoMo · Đi Chợ Online — Strategic Analysis</div>
+    <div class="ft-note" style="margin-top:4px">Data: Q2 2020 (Apr 15 – Jun 30) · Framing: MoMo 2026 "Trợ thủ tài chính"</div>
+  </div>
+  <div class="ft-note">Post-mortem & Reframe Report · Internal Use Only</div>
+</footer>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('pgbar').style.width = pct + '%';
+});
+
+// Active nav
+const secs = document.querySelectorAll('section[id],header[id]');
+const pills = document.querySelectorAll('.nav-pill');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+  pills.forEach(p => p.classList.toggle('on', p.getAttribute('href') === '#' + cur));
+}, { passive: true });
+
+// Chart defaults
+const F = { family: "'Be Vietnam Pro', sans-serif", size: 12 };
+Chart.defaults.font = F;
+Chart.defaults.color = '#B9B9B9';
+const M = '#D82D8B', MGRID = '#F2F2F2', HINT = '#B9B9B9';
+
+// ─── DAILY ORDERS ───
+(function(){
+  const orders = [25,27,17,15,14,14,15,26,22,59,20,23,18,25,12,19,21,10,5,9,14,10,7,9,9,11,9,14,15,12,9,12,11,9,13,9,10,10,8,9,7,8,8,9,2,2,5,3,3,2,2,3,4,2,4,3,3,5,3,5,2,3,4,2,2,1,2,5,3,2,2,2,2,3];
+  const lbls = [];
+  for(let i=15;i<=30;i++) lbls.push('Apr '+i);
+  for(let i=1;i<=31;i++) lbls.push('May '+i);
+  for(let i=1;i<=30;i++) lbls.push('Jun '+i);
+
+  new Chart(document.getElementById('dailyChart'), {
+    type: 'line',
+    data: {
+      labels: lbls,
+      datasets: [
+        {
+          label: 'Đơn hàng',
+          data: orders,
+          borderColor: M,
+          backgroundColor: ctx => {
+            const g = ctx.chart.ctx.createLinearGradient(0,0,0,200);
+            g.addColorStop(0,'rgba(216,45,139,.18)');
+            g.addColorStop(1,'rgba(216,45,139,0)');
+            return g;
+          },
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: M,
+          borderWidth: 2,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1A1A1A',
+          titleFont: { ...F, weight: 700 },
+          bodyFont: F,
+          padding: 10,
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} đơn`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 10, font: { ...F, size: 11 } },
+          border: { display: false }
+        },
+        y: {
+          grid: { color: MGRID },
+          ticks: { font: { ...F, size: 11 } },
+          border: { display: false },
+          min: 0
+        }
+      }
+    }
+  });
+})();
+
+// ─── MONTHLY AVG ───
+new Chart(document.getElementById('monthlyAvg'), {
+  type: 'bar',
+  data: {
+    labels: ['Tháng 4\n(17 ngày)', 'Tháng 5\n(31 ngày)', 'Tháng 6\n(30 ngày)'],
+    datasets: [{ data: [21.7, 9.4, 3.1], backgroundColor: [M, '#E65100', '#D32F2F'], borderRadius: 8, barThickness: 48 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} đơn/ngày` } } },
+    scales: {
+      x: { grid: { display: false }, border: { display: false } },
+      y: { grid: { color: MGRID }, border: { display: false }, min: 0 }
+    }
+  }
+});
+
+// ─── LOYALTY ───
+new Chart(document.getElementById('loyaltyChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Tháng 4', 'Tháng 5', 'Tháng 6'],
+    datasets: [{
+      data: [1.34, 1.19, 1.02],
+      backgroundColor: [M, '#E65100', '#D32F2F'],
+      borderRadius: 8,
+      barThickness: 48
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}× đơn/user` } }
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false } },
+      y: {
+        grid: { color: MGRID }, border: { display: false },
+        min: 0.95, max: 1.5,
+        ticks: { callback: v => v + '×' }
+      }
+    }
+  }
+});
+
+// ─── WEEK ───
+new Chart(document.getElementById('weekChart'), {
+  type: 'bar',
+  data: {
+    labels: ['T.2', 'T.3', 'T.4', 'T.5', 'T.6', 'T.7', 'CN'],
+    datasets: [{
+      data: [74, 95, 122, 116, 150, 96, 103],
+      backgroundColor: ['#F0C8DE','#E8AACF','#D882BB','#CC66AD',M,'#E8AACF','#D882BB'],
+      borderRadius: 6, barThickness: 36
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, border: { display: false } },
+      y: { grid: { color: MGRID }, border: { display: false }, min: 0 }
+    }
+  }
+});
+
+// ─── HOURLY ───
+new Chart(document.getElementById('hourChart'), {
+  type: 'line',
+  data: {
+    labels: ['0h','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],
+    datasets: [{
+      data: [7,4,2,4,2,4,9,16,38,42,46,59,54,55,47,51,76,54,54,50,29,29,13,11],
+      borderColor: M,
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,160);
+        g.addColorStop(0,'rgba(216,45,139,.15)');
+        g.addColorStop(1,'rgba(216,45,139,0)');
+        return g;
+      },
+      fill: true, tension: 0.4,
+      pointRadius: 2, pointBackgroundColor: M,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, border: { display: false } },
+      y: { grid: { color: MGRID }, border: { display: false }, min: 0 }
+    }
+  }
+});
+
+// ─── KEYWORDS ───
+new Chart(document.getElementById('keywordChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Khẩu trang','Sữa','Sữa chua','Nước rửa tay','Nước','Mì','Nước giặt','Gạo','Dầu ăn','Khăn ướt'],
+    datasets: [{
+      data: [127,109,81,69,68,61,56,55,39,33],
+      backgroundColor: ['#D32F2F', M, M, M, M, M, M, M, M, M].map((c,i) => i===0 ? '#FFEBEE' : 'rgba(216,45,139,.12)'),
+      borderColor: ['#D32F2F', M, M, M, M, M, M, M, M, M],
+      borderWidth: 1.5,
+      borderRadius: 4,
+      barThickness: 20
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: MGRID }, border: { display: false } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { ...F, size: 11 } } }
+    }
+  }
+});
+
+// ─── CATEGORY ───
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Thực phẩm','Thức uống','Gia dụng','Làm đẹp','Nhà cửa','Sức khỏe','Mẹ & bé','Gia vị','Khác'],
+    datasets: [{
+      data: [1422,959,804,702,630,502,442,338,226],
+      backgroundColor: [M,'#E8558A','#F0809A','#BD2F7C','#9A1F65','#7A1050','#5A0A3C','#C459A0','#E0C0D8'],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'right', labels: { font: { ...F, size: 11 }, padding: 12, boxWidth: 10 } }
+    }
+  }
+});
+
+// ─── DELIVERY COMPARE ───
+new Chart(document.getElementById('deliveryCompare'), {
+  type: 'bar',
+  data: {
+    labels: ['MoMo Đi Chợ Online', 'Grab Mart\n(benchmark)', 'Baemin Market\n(benchmark)', 'Target\n(if rebuilt)'],
+    datasets: [{
+      label: 'Phút',
+      data: [289, 45, 60, 90],
+      backgroundColor: ['#FFEBEE', '#E8F5E9', '#E8F5E9', 'rgba(216,45,139,.12)'],
+      borderColor: ['#D32F2F', '#2E7D32', '#2E7D32', M],
+      borderWidth: 2,
+      borderRadius: 6,
+      barThickness: 52
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} phút` } }
+    },
+    scales: {
+      x: { grid: { color: MGRID }, border: { display: false }, ticks: { callback: v => v + ' ph' } },
+      y: { grid: { display: false }, border: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
